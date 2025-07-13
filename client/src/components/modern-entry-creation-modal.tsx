@@ -218,7 +218,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
                 variant="ghost"
                 size="icon"
                 onClick={handleClose}
-                className="h-8 w-8 rounded-full hover:bg-white/20"
+                className="h-8 w-8 rounded-full hover:bg-white/20 transition-colors"
               >
                 <X className="h-4 w-4" />
               </Button>

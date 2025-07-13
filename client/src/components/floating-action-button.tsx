@@ -11,9 +11,9 @@ export function FloatingActionButton() {
       <div className="fixed bottom-20 right-6 z-20">
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="w-16 h-16 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 animate-pulse"
+          className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-white/20 backdrop-blur-sm"
         >
-          <Plus className="w-8 h-8 text-white" />
+          <Plus className="w-6 h-6 text-white font-bold stroke-[3]" />
         </Button>
       </div>
       

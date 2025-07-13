@@ -169,9 +169,9 @@ export default function Calendar() {
                           e.stopPropagation();
                           handleAddEntry(day);
                         }}
-                        className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-sm"
+                        className="absolute top-1 right-1 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110 border border-white/30"
                       >
-                        <Plus className="w-2.5 h-2.5 text-white" />
+                        <Plus className="w-3 h-3 text-white font-bold stroke-[3]" />
                       </button>
                     </div>
                   );
