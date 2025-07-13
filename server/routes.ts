@@ -162,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const transcriptionData = insertTranscriptionSchema.parse({
             mediaFileId: mediaFile.id,
             text: transcriptionResult.text,
-            confidence: 0.95, // OpenAI Whisper is generally very confident
+            confidence: 95, // OpenAI Whisper is generally very confident (0-100 scale)
             language: 'en',
           });
           

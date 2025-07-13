@@ -55,7 +55,7 @@ export function AudioPlayer({ audioUrl, duration, fileName }: AudioPlayerProps) 
 
   const handleSeek = (value: number[]) => {
     const audio = audioRef.current;
-    if (audio) {
+    if (audio && isFinite(value[0]) && value[0] >= 0 && value[0] <= totalDuration) {
       audio.currentTime = value[0];
       setCurrentTime(value[0]);
     }
@@ -90,8 +90,8 @@ export function AudioPlayer({ audioUrl, duration, fileName }: AudioPlayerProps) 
         
         <div className="flex-1">
           <Slider
-            value={[currentTime]}
-            max={totalDuration}
+            value={[isFinite(currentTime) ? currentTime : 0]}
+            max={isFinite(totalDuration) && totalDuration > 0 ? totalDuration : 100}
             step={0.1}
             onValueChange={handleSeek}
             className="w-full"
