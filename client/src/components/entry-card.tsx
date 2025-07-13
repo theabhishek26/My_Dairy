@@ -46,39 +46,43 @@ export function EntryCard({ entry }: EntryCardProps) {
   const videoFiles = entry.mediaFiles.filter(file => file.mimeType.startsWith('video/'));
 
   return (
-    <Card className="glass-effect border-0 entry-card">
-      <CardContent className="p-4">
+    <Card className="glass-effect border-0 entry-card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white/80 via-white/60 to-purple-50/40 dark:from-gray-800/80 dark:via-gray-800/60 dark:to-indigo-800/40 backdrop-blur-lg rounded-2xl">
+      <CardContent className="p-5">
         {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <div className={`w-6 h-6 bg-gradient-to-r ${getEntryTypeColor(entry.type)} rounded-full flex items-center justify-center`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className={`w-8 h-8 bg-gradient-to-r ${getEntryTypeColor(entry.type)} rounded-full flex items-center justify-center shadow-lg`}>
               {getEntryTypeIcon(entry.type)}
             </div>
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border-white/20">
               {entry.type}
             </Badge>
           </div>
-          <span className="text-xs text-muted-foreground font-mono">
-            {format(new Date(entry.createdAt), 'h:mm a')}
-          </span>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-muted-foreground font-mono bg-white/30 dark:bg-gray-700/30 px-2 py-1 rounded-full">
+              {format(new Date(entry.createdAt), 'h:mm a')}
+            </span>
+            {entry.isFavorite && <Heart className="w-4 h-4 text-red-500 fill-current" />}
+            {entry.isBookmarked && <Bookmark className="w-4 h-4 text-blue-500 fill-current" />}
+          </div>
         </div>
 
         {/* Title */}
         {entry.title && (
-          <h3 className="font-playfair font-semibold text-lg mb-2 text-foreground">
+          <h3 className="font-bold text-xl mb-3 text-foreground bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             {entry.title}
           </h3>
         )}
 
         {/* Images */}
         {images.length > 0 && (
-          <div className={`mb-3 rounded-xl overflow-hidden ${images.length > 1 ? 'grid grid-cols-2 gap-1' : ''}`}>
+          <div className={`mb-4 rounded-2xl overflow-hidden shadow-lg ${images.length > 1 ? 'grid grid-cols-2 gap-1' : ''}`}>
             {images.slice(0, 4).map((image, index) => (
               <img
                 key={image.id}
                 src={image.url}
                 alt={image.originalName}
-                className={`w-full object-cover ${images.length === 1 ? 'h-32' : 'h-24'}`}
+                className={`w-full object-cover transition-transform duration-300 hover:scale-105 ${images.length === 1 ? 'h-40' : 'h-28'}`}
               />
             ))}
           </div>
@@ -118,7 +122,7 @@ export function EntryCard({ entry }: EntryCardProps) {
 
         {/* Content */}
         {entry.content && (
-          <p className="text-sm text-foreground mb-3 leading-relaxed">
+          <p className="text-sm text-foreground mb-4 leading-relaxed bg-white/30 dark:bg-gray-700/30 backdrop-blur-sm rounded-lg p-3 border border-white/20">
             {entry.content}
           </p>
         )}

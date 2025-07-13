@@ -196,11 +196,11 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white/95 to-purple-50/95 dark:from-gray-900/95 dark:to-purple-900/95 backdrop-blur-xl border-white/20 shadow-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 dark:from-gray-900/95 dark:via-indigo-900/90 dark:to-purple-900/95 backdrop-blur-xl border-white/20 shadow-2xl animate-in fade-in-0 zoom-in-95 duration-300">
           <DialogHeader className="space-y-4">
             <div className="flex items-center justify-between">
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Create New Entry
+              <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent animate-pulse">
+                ✨ Create New Entry
               </DialogTitle>
               <Button
                 variant="ghost"
@@ -213,7 +213,7 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
             </div>
             
             {/* Entry Type Tabs */}
-            <div className="flex space-x-1 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg p-1">
+            <div className="flex space-x-1 bg-gradient-to-r from-white/60 via-blue-50/60 to-purple-50/60 dark:from-gray-800/60 dark:via-indigo-800/60 dark:to-purple-800/60 backdrop-blur-sm rounded-xl p-1.5 shadow-inner">
               {[
                 { id: 'text', label: 'Text', icon: Type },
                 { id: 'voice', label: 'Voice', icon: Mic },
@@ -226,10 +226,10 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
                   size="sm"
                   onClick={() => setActiveTab(id as any)}
                   className={cn(
-                    "flex-1 gap-2 transition-all duration-200",
+                    "flex-1 gap-2 transition-all duration-300 rounded-lg",
                     activeTab === id
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
-                      : "hover:bg-white/20"
+                      ? "bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white shadow-lg transform scale-105 shadow-purple-500/25"
+                      : "hover:bg-white/30 hover:shadow-md hover:scale-102"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -251,7 +251,7 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="What's on your mind today?"
-                  className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-white/20 focus:border-purple-400"
+                  className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 rounded-lg shadow-sm"
                 />
               </div>
               
@@ -264,7 +264,7 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
                   value={mood}
                   onChange={(e) => setMood(e.target.value)}
                   placeholder="Happy, Excited, Calm..."
-                  className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-white/20 focus:border-purple-400"
+                  className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 rounded-lg shadow-sm"
                 />
               </div>
             </div>

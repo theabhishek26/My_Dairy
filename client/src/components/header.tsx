@@ -17,15 +17,15 @@ export function Header() {
   };
 
   return (
-    <header className="relative z-10 bg-white/80 backdrop-blur-lg border-b border-purple-100">
+    <header className="relative z-10 bg-gradient-to-r from-white/90 via-purple-50/80 to-pink-50/90 dark:from-gray-900/90 dark:via-purple-900/80 dark:to-pink-900/90 backdrop-blur-xl border-b border-purple-200/50 shadow-lg">
       <div className="flex items-center justify-between p-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-light rounded-full flex items-center justify-center floating-animation">
-            <BookOpen className="w-5 h-5 text-white" />
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+            <BookOpen className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-playfair font-bold text-foreground">My Diary</h1>
-            <p className="text-xs text-muted-foreground font-mono">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">✨ My Diary</h1>
+            <p className="text-sm text-muted-foreground font-medium bg-white/30 dark:bg-gray-700/30 px-2 py-1 rounded-full">
               {format(new Date(), 'EEEE, MMMM d')}
             </p>
           </div>
@@ -38,9 +38,9 @@ export function Header() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsSearchOpen(true)}
-                className="w-8 h-8 p-0 bg-gradient-to-r from-accent to-accent-blue rounded-full text-white hover:opacity-80"
+                className="w-10 h-10 p-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full text-white hover:scale-110 transition-all duration-300 shadow-lg"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-5 h-5" />
               </Button>
               
               <Sheet>
@@ -48,9 +48,9 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-8 h-8 p-0 bg-gradient-to-r from-secondary to-secondary-light rounded-full text-white hover:opacity-80"
+                    className="w-10 h-10 p-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full text-white hover:scale-110 transition-all duration-300 shadow-lg"
                   >
-                    <User className="w-4 h-4" />
+                    <User className="w-5 h-5" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72 glass-effect border-0">
