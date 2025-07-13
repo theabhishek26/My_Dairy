@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EntryCreationModal } from "./entry-creation-modal";
+import { ModernEntryCreationModal } from "./modern-entry-creation-modal";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
@@ -17,7 +17,7 @@ export function FloatingActionButton() {
         </Button>
       </div>
       
-      <EntryCreationModal
+      <ModernEntryCreationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />

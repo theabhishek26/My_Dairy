@@ -84,6 +84,8 @@ export const insertEntrySchema = createInsertSchema(entries).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  entryDate: z.string().datetime().optional().or(z.date().optional()),
 });
 
 export const insertMediaFileSchema = createInsertSchema(mediaFiles).omit({

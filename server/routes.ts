@@ -3,6 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertEntrySchema, insertMediaFileSchema, insertTranscriptionSchema } from "@shared/schema";
+import { transcribeAudio } from "./openai";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -95,14 +96,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new entry
   app.post('/api/entries', async (req, res) => {
     try {
+      console.log('Creating entry with data:', req.body);
+      
       const entryData = insertEntrySchema.parse({
         ...req.body,
         userId: mockUserId,
       });
+      
       const entry = await storage.createEntry(entryData);
       res.status(201).json(entry);
     } catch (error) {
-      res.status(400).json({ message: error instanceof Error ? error.message : 'Unknown error' });
+      console.error('Entry creation error:', error);
+      if (error instanceof Error && error.message.includes('ZodError')) {
+        res.status(400).json({ message: 'Invalid entry data provided' });
+      } else {
+        res.status(400).json({ message: error instanceof Error ? error.message : 'Unknown error' });
+      }
     }
   });
 
@@ -145,8 +154,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const mediaFile = await storage.createMediaFile(mediaData);
+      
+      // Auto-transcribe audio files
+      if (req.file.mimetype.startsWith('audio/')) {
+        try {
+          const transcriptionResult = await transcribeAudio(req.file.path);
+          const transcriptionData = insertTranscriptionSchema.parse({
+            mediaFileId: mediaFile.id,
+            text: transcriptionResult.text,
+            confidence: 0.95, // OpenAI Whisper is generally very confident
+            language: 'en',
+          });
+          
+          await storage.createTranscription(transcriptionData);
+          console.log('Audio transcription completed for file:', req.file.filename);
+        } catch (transcriptionError) {
+          console.error('Transcription failed:', transcriptionError);
+          // Don't fail the upload if transcription fails
+        }
+      }
+      
       res.status(201).json(mediaFile);
     } catch (error) {
+      console.error('Media upload error:', error);
       res.status(400).json({ message: error instanceof Error ? error.message : 'Unknown error' });
     }
   });

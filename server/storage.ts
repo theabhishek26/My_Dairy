@@ -112,17 +112,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createEntry(entry: InsertEntry): Promise<Entry> {
+    const entryData = {
+      ...entry,
+      entryDate: entry.entryDate ? new Date(entry.entryDate) : new Date(),
+    };
+    
     const [newEntry] = await db
       .insert(entries)
-      .values(entry)
+      .values(entryData)
       .returning();
     return newEntry;
   }
 
   async updateEntry(id: number, entry: Partial<InsertEntry>): Promise<Entry> {
+    const entryData = {
+      ...entry,
+      entryDate: entry.entryDate ? new Date(entry.entryDate) : undefined,
+      updatedAt: new Date(),
+    };
+    
     const [updatedEntry] = await db
       .update(entries)
-      .set({ ...entry, updatedAt: new Date() })
+      .set(entryData)
       .where(eq(entries.id, id))
       .returning();
     return updatedEntry;
