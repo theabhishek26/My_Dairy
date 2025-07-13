@@ -113,11 +113,15 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
     }
 
     try {
+      // Create entry date preserving the selected date without timezone conversion
+      const entryDate = new Date(selectedDate);
+      entryDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
+      
       const entryData = {
         title: title.trim() || "Untitled Entry",
         content: textContent,
         type: activeTab,
-        entryDate: selectedDate.toISOString(),
+        entryDate: entryDate.toISOString(),
       };
 
       const entry = await createEntryMutation.mutateAsync(entryData);
@@ -292,7 +296,15 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
               <Input
                 type="date"
                 value={format(selectedDate, 'yyyy-MM-dd')}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                onChange={(e) => {
+                  const dateValue = e.target.value;
+                  if (dateValue) {
+                    // Create date in local timezone to avoid timezone offset issues
+                    const [year, month, day] = dateValue.split('-').map(Number);
+                    const localDate = new Date(year, month - 1, day);
+                    setSelectedDate(localDate);
+                  }
+                }}
                 className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 rounded-lg shadow-sm"
               />
             </div>
