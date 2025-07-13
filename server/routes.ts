@@ -205,6 +205,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Transcribe audio file directly
+  app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No audio file uploaded' });
+      }
+
+      console.log('Transcribing audio file:', req.file.filename);
+      const transcriptionResult = await transcribeAudio(req.file.path);
+      
+      // Clean up the temporary file
+      fs.unlinkSync(req.file.path);
+      
+      res.json({
+        text: transcriptionResult.text,
+        duration: transcriptionResult.duration
+      });
+    } catch (error) {
+      console.error('Transcription error:', error);
+      // Clean up the file on error too
+      if (req.file) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.error('Failed to cleanup file:', cleanupError);
+        }
+      }
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Failed to transcribe audio' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

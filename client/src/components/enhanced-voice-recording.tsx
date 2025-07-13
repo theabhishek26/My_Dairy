@@ -31,32 +31,38 @@ export function EnhancedVoiceRecording({ onSave, onCancel }: EnhancedVoiceRecord
     clearRecording,
   } = useVoiceRecording();
 
-  // Simulate real-time transcription during recording
+  // Transcribe audio when recording stops
   useEffect(() => {
-    if (isRecording && !isPaused) {
-      const interval = setInterval(() => {
-        // Simulate transcription chunks appearing
-        const sampleTexts = [
-          "I'm recording my thoughts today...",
-          "The weather is really nice and I feel great.",
-          "I want to remember this moment because it's special.",
-          "Life has been treating me well lately.",
-          "I'm grateful for all the wonderful experiences.",
-          "Today I learned something new and exciting.",
-          "The world seems full of possibilities right now."
-        ];
-        
-        if (duration > 2 && transcription.length < 200) {
-          const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
-          if (!transcription.includes(randomText.slice(0, 10))) {
-            setTranscription(prev => prev + (prev ? " " : "") + randomText);
-          }
-        }
-      }, 3000);
-
-      return () => clearInterval(interval);
+    if (audioBlob && !isRecording) {
+      transcribeAudio();
     }
-  }, [isRecording, isPaused, duration, transcription]);
+  }, [audioBlob, isRecording]);
+
+  const transcribeAudio = async () => {
+    if (!audioBlob) return;
+    
+    try {
+      setTranscription("🎙️ Transcribing audio...");
+      
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
+      
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Transcription failed');
+      }
+      
+      const result = await response.json();
+      setTranscription(result.text || "Transcription completed but no text was detected.");
+    } catch (error) {
+      console.error('Transcription error:', error);
+      setTranscription("❌ Transcription failed. Please try recording again or enter text manually.");
+    }
+  };
 
   // Handle audio playback time updates
   useEffect(() => {
@@ -93,7 +99,11 @@ export function EnhancedVoiceRecording({ onSave, onCancel }: EnhancedVoiceRecord
 
   const handleSave = () => {
     if (audioBlob) {
-      onSave(audioBlob, transcription);
+      // Only save if we have actual transcription (not placeholder text)
+      const cleanTranscription = transcription.startsWith('🎙️') || transcription.startsWith('❌') 
+        ? "" 
+        : transcription;
+      onSave(audioBlob, cleanTranscription);
     }
   };
 

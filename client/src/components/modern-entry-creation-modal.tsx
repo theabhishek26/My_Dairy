@@ -33,6 +33,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
   const [voiceRecording, setVoiceRecording] = useState<Blob | null>(null);
   const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
+  const [showVoiceRecording, setShowVoiceRecording] = useState(false);
   
   const { capturePhoto, captureFromCamera } = usePhotoCapture();
   const { toast } = useToast();
@@ -404,8 +405,68 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
                 </>
               )}
               
-              {/* Media Controls - Only show for non-voice tabs */}
-              {activeTab !== 'voice' && (
+              {/* Media Controls - Show for mixed media tab */}
+              {activeTab === 'mixed' && (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      onClick={captureFromCamera}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
+                    >
+                      <Camera className="w-4 h-4" />
+                      Take Photo
+                    </Button>
+                    
+                    <Label className="cursor-pointer">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
+                        asChild
+                      >
+                        <span>
+                          <Upload className="w-4 h-4" />
+                          Upload Media
+                        </span>
+                      </Button>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*,video/*,audio/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                    </Label>
+                    
+                    <Button
+                      onClick={() => setShowVoiceRecording(!showVoiceRecording)}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
+                    >
+                      <Mic className="w-4 h-4" />
+                      {showVoiceRecording ? 'Hide Voice' : 'Add Voice'}
+                    </Button>
+                  </div>
+                  
+                  {showVoiceRecording && (
+                    <EnhancedVoiceRecording
+                      onSave={(audioData, transcription) => {
+                        setVoiceRecording(audioData);
+                        // Append transcribed text to existing content
+                        setTextContent(prev => prev ? `${prev}\n\n${transcription}` : transcription);
+                        setShowVoiceRecording(false);
+                      }}
+                      onCancel={() => setShowVoiceRecording(false)}
+                    />
+                  )}
+                </div>
+              )}
+              
+              {/* Media Controls for photo tab */}
+              {activeTab === 'photo' && (
                 <div className="flex flex-wrap gap-3">
                   <Button
                     onClick={captureFromCamera}
@@ -432,7 +493,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
                     <input
                       type="file"
                       multiple
-                      accept="image/*,video/*,audio/*"
+                      accept="image/*,video/*"
                       onChange={handlePhotoUpload}
                       className="hidden"
                     />
