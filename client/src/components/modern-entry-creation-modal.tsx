@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Type, Mic, Camera, Plus, Save, Sparkles, Calendar, Clock, User, Hash, Upload, Image, Video, Music } from "lucide-react";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -8,19 +8,21 @@ import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { useVoiceRecording } from "@/hooks/use-voice-recording";
 import { usePhotoCapture } from "@/hooks/use-photo-capture";
-import { VoiceRecordingInterface } from "./voice-recording-interface";
+import { EnhancedVoiceRecording } from "./enhanced-voice-recording";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { formatEntryDate } from "@/lib/date-utils";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface EntryCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialDate?: Date;
 }
 
-export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModalProps) {
+export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: EntryCreationModalProps) {
   const [activeTab, setActiveTab] = useState<'text' | 'voice' | 'photo' | 'mixed'>('text');
   const [textContent, setTextContent] = useState("");
   const [title, setTitle] = useState("");
@@ -30,6 +32,7 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
   const [isVoiceRecordingOpen, setIsVoiceRecordingOpen] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
   const [voiceRecording, setVoiceRecording] = useState<Blob | null>(null);
+  const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
   
   const { capturePhoto, captureFromCamera } = usePhotoCapture();
   const { toast } = useToast();
@@ -114,7 +117,7 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
         title: title.trim() || "Untitled Entry",
         content: textContent,
         type: activeTab,
-        entryDate: new Date().toISOString(),
+        entryDate: selectedDate.toISOString(),
       };
 
       const entry = await createEntryMutation.mutateAsync(entryData);
@@ -162,6 +165,13 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
     onClose();
   };
 
+  // Update selected date when initialDate changes
+  useEffect(() => {
+    if (initialDate) {
+      setSelectedDate(initialDate);
+    }
+  }, [initialDate]);
+
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
@@ -172,10 +182,7 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
     }
   };
 
-  const handleVoiceRecordingSave = (audioData: Blob) => {
-    setVoiceRecording(audioData);
-    setIsVoiceRecordingOpen(false);
-  };
+
 
   const getTabIcon = (tab: string) => {
     switch (tab) {
@@ -214,33 +221,82 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
             </div>
             
             {/* Entry Type Tabs */}
-            <div className="flex space-x-1 bg-gradient-to-r from-white/60 via-blue-50/60 to-purple-50/60 dark:from-gray-800/60 dark:via-indigo-800/60 dark:to-purple-800/60 backdrop-blur-sm rounded-xl p-1.5 shadow-inner">
+            <div className="grid grid-cols-4 gap-3 mb-4">
               {[
-                { id: 'text', label: 'Text', icon: Type },
-                { id: 'voice', label: 'Voice', icon: Mic },
-                { id: 'photo', label: 'Photo', icon: Camera },
-                { id: 'mixed', label: 'Mixed', icon: Plus },
-              ].map(({ id, label, icon: Icon }) => (
-                <Button
+                { 
+                  id: 'text', 
+                  label: 'Write Text', 
+                  icon: Type, 
+                  description: 'Express your thoughts in words',
+                  gradient: 'from-blue-500 to-indigo-600',
+                  bgGradient: 'from-blue-50/60 to-indigo-50/60 dark:from-blue-900/30 dark:to-indigo-900/30'
+                },
+                { 
+                  id: 'voice', 
+                  label: 'Voice Note', 
+                  icon: Mic, 
+                  description: 'Record your voice memo',
+                  gradient: 'from-green-500 to-emerald-600',
+                  bgGradient: 'from-green-50/60 to-emerald-50/60 dark:from-green-900/30 dark:to-emerald-900/30'
+                },
+                { 
+                  id: 'photo', 
+                  label: 'Add Photos', 
+                  icon: Camera, 
+                  description: 'Capture visual memories',
+                  gradient: 'from-orange-500 to-red-600',
+                  bgGradient: 'from-orange-50/60 to-red-50/60 dark:from-orange-900/30 dark:to-red-900/30'
+                },
+                { 
+                  id: 'mixed', 
+                  label: 'Mix Media', 
+                  icon: Plus, 
+                  description: 'Combine text, voice & photos',
+                  gradient: 'from-purple-500 to-pink-600',
+                  bgGradient: 'from-purple-50/60 to-pink-50/60 dark:from-purple-900/30 dark:to-pink-900/30'
+                },
+              ].map(({ id, label, icon: Icon, description, gradient, bgGradient }) => (
+                <div
                   key={id}
-                  variant={activeTab === id ? "default" : "ghost"}
-                  size="sm"
                   onClick={() => setActiveTab(id as any)}
                   className={cn(
-                    "flex-1 gap-2 transition-all duration-300 rounded-lg",
+                    "relative p-4 rounded-xl cursor-pointer transition-all duration-300 bg-gradient-to-br backdrop-blur-sm border",
                     activeTab === id
-                      ? "bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white shadow-lg transform scale-105 shadow-purple-500/25"
-                      : "hover:bg-white/30 hover:shadow-md hover:scale-102"
+                      ? `${bgGradient} border-white/30 shadow-lg transform scale-105`
+                      : "from-white/40 to-white/20 dark:from-gray-800/40 dark:to-gray-800/20 border-white/20 hover:scale-102 hover:shadow-md"
                   )}
                 >
-                  <Icon className="w-4 h-4" />
-                  {label}
-                </Button>
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center mb-3 bg-gradient-to-r",
+                    gradient,
+                    activeTab === id ? "shadow-lg" : ""
+                  )}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-200 mb-1">{label}</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{description}</p>
+                  {activeTab === id && (
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-2 border-purple-400/50"></div>
+                  )}
+                </div>
               ))}
             </div>
           </DialogHeader>
 
           <div className="space-y-6">
+            {/* Date Selection */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Entry Date
+              </Label>
+              <Input
+                type="date"
+                value={format(selectedDate, 'yyyy-MM-dd')}
+                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 rounded-lg shadow-sm"
+              />
+            </div>
+
             {/* Header Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -309,61 +365,68 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
 
             {/* Content Area */}
             <div className="space-y-4">
-              <Label htmlFor="content" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Entry Content
-              </Label>
+              {activeTab === 'voice' ? (
+                <EnhancedVoiceRecording
+                  onSave={(audioData, transcription) => {
+                    setVoiceRecording(audioData);
+                    setTextContent(transcription);
+                  }}
+                  onCancel={() => {
+                    setVoiceRecording(null);
+                    setTextContent('');
+                  }}
+                />
+              ) : (
+                <>
+                  <Label htmlFor="content" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Entry Content
+                  </Label>
+                  
+                  <Textarea
+                    id="content"
+                    value={textContent}
+                    onChange={(e) => setTextContent(e.target.value)}
+                    placeholder="Start writing your thoughts..."
+                    className="min-h-[200px] bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-white/20 focus:border-purple-400 resize-none"
+                  />
+                </>
+              )}
               
-              <Textarea
-                id="content"
-                value={textContent}
-                onChange={(e) => setTextContent(e.target.value)}
-                placeholder="Start writing your thoughts..."
-                className="min-h-[200px] bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-white/20 focus:border-purple-400 resize-none"
-              />
-              
-              {/* Media Controls */}
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  onClick={() => setIsVoiceRecordingOpen(true)}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
-                >
-                  <Mic className="w-4 h-4" />
-                  Record Voice
-                </Button>
-                
-                <Button
-                  onClick={captureFromCamera}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
-                >
-                  <Camera className="w-4 h-4" />
-                  Take Photo
-                </Button>
-                
-                <Label className="cursor-pointer">
+              {/* Media Controls - Only show for non-voice tabs */}
+              {activeTab !== 'voice' && (
+                <div className="flex flex-wrap gap-3">
                   <Button
+                    onClick={captureFromCamera}
                     variant="outline"
                     size="sm"
                     className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
-                    asChild
                   >
-                    <span>
-                      <Upload className="w-4 h-4" />
-                      Upload Media
-                    </span>
+                    <Camera className="w-4 h-4" />
+                    Take Photo
                   </Button>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*,video/*,audio/*"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                  />
-                </Label>
-              </div>
+                  
+                  <Label className="cursor-pointer">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
+                      asChild
+                    >
+                      <span>
+                        <Upload className="w-4 h-4" />
+                        Upload Media
+                      </span>
+                    </Button>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*,audio/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </Label>
+                </div>
+              )}
             </div>
 
             {/* Media Preview */}
@@ -446,11 +509,7 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
         </DialogContent>
       </Dialog>
 
-      <VoiceRecordingInterface
-        isOpen={isVoiceRecordingOpen}
-        onClose={() => setIsVoiceRecordingOpen(false)}
-        onSave={handleVoiceRecordingSave}
-      />
+
     </>
   );
 }

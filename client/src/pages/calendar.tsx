@@ -5,13 +5,16 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ModernEntryCreationModal } from "@/components/modern-entry-creation-modal";
 import { EntryWithMedia } from "@shared/schema";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay } from "date-fns";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Mic, Camera, PenTool } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Mic, Camera, PenTool, Plus } from "lucide-react";
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
+  const [entryDate, setEntryDate] = useState<Date>(new Date());
 
   const { data: entries } = useQuery<EntryWithMedia[]>({
     queryKey: ['/api/entries'],
@@ -65,6 +68,15 @@ export default function Calendar() {
     setCurrentDate(newDate);
   };
 
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+  };
+
+  const handleAddEntry = (date: Date) => {
+    setEntryDate(date);
+    setIsEntryModalOpen(true);
+  };
+
   return (
     <div className="relative z-10 min-h-screen">
       <Header />
@@ -116,11 +128,10 @@ export default function Calendar() {
                   const isSelected = selectedDate && isSameDay(day, selectedDate);
 
                   return (
-                    <button
+                    <div
                       key={day.toISOString()}
-                      onClick={() => setSelectedDate(day)}
                       className={`
-                        relative text-sm py-2 px-1 rounded-lg transition-all duration-200 min-h-[40px]
+                        relative text-sm py-2 px-1 rounded-lg transition-all duration-200 min-h-[40px] group
                         ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
                         ${isCurrentDay ? 'bg-gradient-to-r from-primary to-primary-light text-white font-medium' : ''}
                         ${isSelected ? 'bg-gradient-to-r from-accent to-accent-blue text-white' : ''}
@@ -128,25 +139,41 @@ export default function Calendar() {
                         ${dayEntries.length > 0 && !isCurrentDay && !isSelected ? 'bg-gradient-to-r from-secondary/20 to-secondary-light/20' : ''}
                       `}
                     >
-                      <div className="text-center">
-                        {format(day, 'd')}
-                      </div>
-                      
-                      {/* Entry Indicators */}
-                      {dayEntries.length > 0 && (
-                        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                          {dayEntries.slice(0, 3).map((entry, index) => (
-                            <div
-                              key={entry.id}
-                              className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${getEntryTypeColor(entry.type)}`}
-                            />
-                          ))}
-                          {dayEntries.length > 3 && (
-                            <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-gray-400 to-gray-500" />
-                          )}
+                      <button 
+                        onClick={() => handleDateClick(day)}
+                        className="w-full h-full"
+                      >
+                        <div className="text-center">
+                          {format(day, 'd')}
                         </div>
-                      )}
-                    </button>
+                        
+                        {/* Entry Indicators */}
+                        {dayEntries.length > 0 && (
+                          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                            {dayEntries.slice(0, 3).map((entry, index) => (
+                              <div
+                                key={entry.id}
+                                className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${getEntryTypeColor(entry.type)}`}
+                              />
+                            ))}
+                            {dayEntries.length > 3 && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-gray-400 to-gray-500" />
+                            )}
+                          </div>
+                        )}
+                      </button>
+                      
+                      {/* Add Entry Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddEntry(day);
+                        }}
+                        className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-sm"
+                      >
+                        <Plus className="w-2.5 h-2.5 text-white" />
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -228,6 +255,13 @@ export default function Calendar() {
       </main>
       
       <BottomNavigation />
+      
+      {/* Entry Creation Modal */}
+      <ModernEntryCreationModal
+        isOpen={isEntryModalOpen}
+        onClose={() => setIsEntryModalOpen(false)}
+        initialDate={entryDate}
+      />
     </div>
   );
 }
