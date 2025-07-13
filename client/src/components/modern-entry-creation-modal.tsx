@@ -37,10 +37,11 @@ export function ModernEntryCreationModal({ isOpen, onClose }: EntryCreationModal
 
   const createEntryMutation = useMutation({
     mutationFn: async (entryData: any) => {
-      return await apiRequest("/api/entries", {
+      const response = await apiRequest("/api/entries", {
         method: "POST",
         body: JSON.stringify(entryData),
       });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
