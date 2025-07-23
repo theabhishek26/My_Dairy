@@ -2,9 +2,24 @@ import { useState } from "react";
 import { ModernEntryCreationModal } from "./modern-entry-creation-modal";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { isToday } from "date-fns";
 
-export function FloatingActionButton() {
+interface FloatingActionButtonProps {
+  currentDate?: Date;
+  show?: boolean;
+}
+
+export function FloatingActionButton({ currentDate, show = true }: FloatingActionButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Only show the button if:
+  // 1. show prop is true
+  // 2. currentDate is today or undefined (for home page)
+  const shouldShow = show && (!currentDate || isToday(currentDate));
+
+  if (!shouldShow) {
+    return null;
+  }
 
   return (
     <>
@@ -20,6 +35,7 @@ export function FloatingActionButton() {
       <ModernEntryCreationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        initialDate={currentDate}
       />
     </>
   );

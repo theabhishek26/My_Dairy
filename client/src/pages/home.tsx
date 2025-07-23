@@ -139,7 +139,24 @@ export default function Home() {
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
+    const today = new Date();
+    
+    if (direction === 'next') {
+      newDate.setDate(newDate.getDate() + 1);
+      // Prevent navigating to future dates
+      if (newDate > today) {
+        return;
+      }
+    } else {
+      newDate.setDate(newDate.getDate() - 1);
+      // Limit to current year only
+      const currentYear = today.getFullYear();
+      const startOfYear = new Date(currentYear, 0, 1);
+      if (newDate < startOfYear) {
+        return;
+      }
+    }
+    
     setSelectedDate(newDate);
   };
 
@@ -209,26 +226,14 @@ export default function Home() {
                       {isToday(selectedDate) ? '✨ Today' : format(selectedDate, 'EEEE')}
                     </p>
                   </div>
-                  <Input
-                    type="date"
-                    value={format(selectedDate, 'yyyy-MM-dd')}
-                    onChange={(e) => {
-                      const dateValue = e.target.value;
-                      if (dateValue) {
-                        const [year, month, day] = dateValue.split('-').map(Number);
-                        const localDate = new Date(year, month - 1, day);
-                        setSelectedDate(localDate);
-                      }
-                    }}
-                    className="w-36 text-sm bg-white/50 dark:bg-gray-800/50 border-2 border-purple-200/50 dark:border-purple-700/50 rounded-xl backdrop-blur-sm focus:border-purple-400 dark:focus:border-purple-500 focus:bg-white/70 dark:focus:bg-gray-800/70 transition-all duration-300"
-                  />
                 </div>
                 
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => navigateDate('next')}
-                  className="w-12 h-12 p-0 rounded-full bg-white/20 hover:bg-white/30 dark:bg-gray-800/20 dark:hover:bg-gray-800/30 backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                  disabled={isToday(selectedDate)}
+                  className="w-12 h-12 p-0 rounded-full bg-white/20 hover:bg-white/30 dark:bg-gray-800/20 dark:hover:bg-gray-800/30 backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </Button>
@@ -288,7 +293,7 @@ export default function Home() {
         </div>
       </main>
       
-      <FloatingActionButton />
+      <FloatingActionButton currentDate={selectedDate} />
       <BottomNavigation />
     </div>
   );

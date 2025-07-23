@@ -64,17 +64,42 @@ export default function Calendar() {
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    
+    if (direction === 'next') {
+      newDate.setMonth(newDate.getMonth() + 1);
+      // Prevent navigating beyond current month/year
+      if (newDate.getFullYear() > currentYear || 
+          (newDate.getFullYear() === currentYear && newDate.getMonth() > today.getMonth())) {
+        return;
+      }
+    } else {
+      newDate.setMonth(newDate.getMonth() - 1);
+      // Limit to current year only
+      if (newDate.getFullYear() < currentYear) {
+        return;
+      }
+    }
+    
     setCurrentDate(newDate);
   };
 
   const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
+    const today = new Date();
+    // Only allow selecting dates that are not in the future
+    if (date <= today) {
+      setSelectedDate(date);
+    }
   };
 
   const handleAddEntry = (date: Date) => {
-    setEntryDate(date);
-    setIsEntryModalOpen(true);
+    const today = new Date();
+    // Only allow adding entries for today or past dates
+    if (date <= today) {
+      setEntryDate(date);
+      setIsEntryModalOpen(true);
+    }
   };
 
   return (
@@ -101,7 +126,8 @@ export default function Calendar() {
               variant="ghost"
               size="sm"
               onClick={() => navigateMonth('next')}
-              className="w-10 h-10 p-0 rounded-full glass-effect"
+              disabled={currentDate.getFullYear() === new Date().getFullYear() && currentDate.getMonth() >= new Date().getMonth()}
+              className="w-10 h-10 p-0 rounded-full glass-effect disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronRight className="w-5 h-5" />
             </Button>
@@ -126,6 +152,7 @@ export default function Calendar() {
                   const isCurrentMonth = isSameMonth(day, currentDate);
                   const isCurrentDay = isToday(day);
                   const isSelected = selectedDate && isSameDay(day, selectedDate);
+                  const isFutureDate = day > new Date();
 
                   return (
                     <div
@@ -135,13 +162,15 @@ export default function Calendar() {
                         ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
                         ${isCurrentDay ? 'bg-gradient-to-r from-primary to-primary-light text-white font-medium' : ''}
                         ${isSelected ? 'bg-gradient-to-r from-accent to-accent-blue text-white' : ''}
-                        ${!isCurrentDay && !isSelected ? 'hover:bg-muted' : ''}
+                        ${!isCurrentDay && !isSelected && !isFutureDate ? 'hover:bg-muted' : ''}
                         ${dayEntries.length > 0 && !isCurrentDay && !isSelected ? 'bg-gradient-to-r from-secondary/20 to-secondary-light/20' : ''}
+                        ${isFutureDate ? 'opacity-50 cursor-not-allowed' : ''}
                       `}
                     >
                       <button 
                         onClick={() => handleDateClick(day)}
-                        className="w-full h-full"
+                        disabled={isFutureDate}
+                        className="w-full h-full disabled:cursor-not-allowed"
                       >
                         <div className="text-center">
                           {format(day, 'd')}
@@ -163,16 +192,18 @@ export default function Calendar() {
                         )}
                       </button>
                       
-                      {/* Add Entry Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddEntry(day);
-                        }}
-                        className="absolute top-1 right-1 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110 border border-white/30"
-                      >
-                        <Plus className="w-3 h-3 text-white font-bold stroke-[3]" />
-                      </button>
+                      {/* Add Entry Button - Only show for current/past dates */}
+                      {!isFutureDate && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddEntry(day);
+                          }}
+                          className="absolute top-1 right-1 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110 border border-white/30"
+                        >
+                          <Plus className="w-3 h-3 text-white font-bold stroke-[3]" />
+                        </button>
+                      )}
                     </div>
                   );
                 })}

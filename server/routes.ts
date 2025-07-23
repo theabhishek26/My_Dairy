@@ -98,6 +98,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Creating entry with data:', req.body);
       
+      // Validate date restrictions
+      const entryDate = new Date(req.body.entryDate);
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      
+      // Check if date is in the future
+      if (entryDate > today) {
+        return res.status(400).json({ message: 'Cannot create entries for future dates' });
+      }
+      
+      // Check if date is in current year
+      if (entryDate.getFullYear() !== currentYear) {
+        return res.status(400).json({ message: 'Can only create entries for the current year' });
+      }
+      
       const entryData = insertEntrySchema.parse({
         ...req.body,
         userId: mockUserId,

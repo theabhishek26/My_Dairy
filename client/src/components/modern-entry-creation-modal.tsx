@@ -297,13 +297,21 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Diary
               <Input
                 type="date"
                 value={format(selectedDate, 'yyyy-MM-dd')}
+                max={format(new Date(), 'yyyy-MM-dd')}
+                min={format(new Date(new Date().getFullYear(), 0, 1), 'yyyy-MM-dd')}
                 onChange={(e) => {
                   const dateValue = e.target.value;
                   if (dateValue) {
-                    // Create date in local timezone to avoid timezone offset issues
+                    // Create date in local timezone and validate restrictions
                     const [year, month, day] = dateValue.split('-').map(Number);
                     const localDate = new Date(year, month - 1, day);
-                    setSelectedDate(localDate);
+                    const today = new Date();
+                    const currentYear = today.getFullYear();
+                    
+                    // Only allow dates in current year and not in future
+                    if (localDate.getFullYear() === currentYear && localDate <= today) {
+                      setSelectedDate(localDate);
+                    }
                   }
                 }}
                 className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 rounded-lg shadow-sm"
@@ -410,9 +418,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Diary
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-3">
                     <Button
-                      onClick={() => capturePhoto().then(file => {
-                        if (file) setSelectedPhotos(prev => [...prev, file]);
-                      })}
+                      onClick={capturePhoto}
                       variant="outline"
                       size="sm"
                       className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
@@ -471,9 +477,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Diary
               {activeTab === 'photo' && (
                 <div className="flex flex-wrap gap-3">
                   <Button
-                    onClick={() => capturePhoto().then(file => {
-                      if (file) setSelectedPhotos(prev => [...prev, file]);
-                    })}
+                    onClick={capturePhoto}
                     variant="outline"
                     size="sm"
                     className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
