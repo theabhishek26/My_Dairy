@@ -16,13 +16,13 @@ import { formatEntryDate } from "@/lib/date-utils";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-interface EntryCreationModalProps {
+interface DiaryCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialDate?: Date;
 }
 
-export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: EntryCreationModalProps) {
+export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: DiaryCreationModalProps) {
   const [activeTab, setActiveTab] = useState<'text' | 'voice' | 'photo' | 'mixed'>('text');
   const [textContent, setTextContent] = useState("");
   const [title, setTitle] = useState("");
@@ -35,7 +35,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
   const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
   const [showVoiceRecording, setShowVoiceRecording] = useState(false);
   
-  const { capturePhoto, captureFromCamera } = usePhotoCapture();
+  const { capturePhoto } = usePhotoCapture();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -51,15 +51,15 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
       queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
       queryClient.invalidateQueries({ queryKey: ["/api/entries", "date"] });
       toast({
-        title: "Entry created successfully!",
-        description: "Your diary entry has been saved.",
+        title: "Journal page created!",
+        description: "Your memory has been captured and saved.",
       });
       handleClose();
     },
     onError: (error: any) => {
       console.error("Entry creation error:", error);
       toast({
-        title: "Error creating entry",
+        title: "Couldn't save your thoughts",
         description: error.message || "Please try again.",
         variant: "destructive",
       });
@@ -213,7 +213,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
           <DialogHeader className="space-y-4">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 bg-clip-text text-transparent animate-pulse">
-                ✨ Create New Entry
+                ✨ Write New Page
               </DialogTitle>
               <Button
                 variant="ghost"
@@ -292,7 +292,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
             {/* Date Selection */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Entry Date
+                Memory Date
               </Label>
               <Input
                 type="date"
@@ -314,13 +314,13 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Entry Title
+                  Page Title
                 </Label>
                 <Input
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="What's on your mind today?"
+                  placeholder="What's your story today?"
                   className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-white/30 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 rounded-lg shadow-sm"
                 />
               </div>
@@ -410,7 +410,9 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-3">
                     <Button
-                      onClick={captureFromCamera}
+                      onClick={() => capturePhoto().then(file => {
+                        if (file) setSelectedPhotos(prev => [...prev, file]);
+                      })}
                       variant="outline"
                       size="sm"
                       className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"
@@ -469,7 +471,9 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Entry
               {activeTab === 'photo' && (
                 <div className="flex flex-wrap gap-3">
                   <Button
-                    onClick={captureFromCamera}
+                    onClick={() => capturePhoto().then(file => {
+                      if (file) setSelectedPhotos(prev => [...prev, file]);
+                    })}
                     variant="outline"
                     size="sm"
                     className="gap-2 bg-white/50 hover:bg-white/70 border-white/20"

@@ -85,7 +85,7 @@ export function Header() {
             <form onSubmit={handleSearch} className="flex items-center space-x-2">
               <Input
                 type="text"
-                placeholder="Search entries..."
+                placeholder="Search memories..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-32 h-8 text-sm"

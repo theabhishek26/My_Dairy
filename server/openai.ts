@@ -15,7 +15,7 @@ export async function transcribeAudio(audioFilePath: string): Promise<{ text: st
 
     return {
       text: transcription.text,
-      duration: transcription.duration || 0,
+      duration: 0, // OpenAI API doesn't return duration, would need to calculate separately
     };
   } catch (error) {
     console.error('OpenAI transcription error:', error);

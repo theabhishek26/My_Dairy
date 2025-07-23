@@ -62,7 +62,7 @@ export default function Gallery() {
         <div className="p-4 pt-6">
           {/* Gallery Header */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-playfair font-semibold text-foreground">Gallery</h2>
+            <h2 className="text-xl font-playfair font-semibold text-foreground">📸 Memory Gallery</h2>
             <div className="flex items-center space-x-2">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -130,8 +130,8 @@ export default function Gallery() {
                   <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary-light rounded-full flex items-center justify-center mx-auto mb-4">
                     <Image className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="font-playfair font-semibold text-lg mb-2">No Media Files</h3>
-                  <p className="text-sm">Start creating entries with photos, videos, or audio recordings.</p>
+                  <h3 className="font-playfair font-semibold text-lg mb-2">No Memories Yet</h3>
+                  <p className="text-sm">Start capturing life moments with photos, videos, or voice recordings.</p>
                 </div>
               </CardContent>
             </Card>

@@ -112,9 +112,9 @@ export default function Calendar() {
             <CardContent className="p-4">
               {/* Week Days Header */}
               <div className="grid grid-cols-7 gap-1 mb-2">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                  <div key={day} className="text-center text-xs text-muted-foreground font-medium py-2">
-                    {day}
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                  <div key={`weekday-${index}`} className="text-center text-xs text-muted-foreground font-medium py-2">
+                    {day.charAt(0)}
                   </div>
                 ))}
               </div>
@@ -129,7 +129,7 @@ export default function Calendar() {
 
                   return (
                     <div
-                      key={day.toISOString()}
+                      key={`calendar-day-${day.getTime()}`}
                       className={`
                         relative text-sm py-2 px-1 rounded-lg transition-all duration-200 min-h-[40px] group
                         ${isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'}
@@ -152,7 +152,7 @@ export default function Calendar() {
                           <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-1">
                             {dayEntries.slice(0, 3).map((entry, index) => (
                               <div
-                                key={entry.id}
+                                key={`entry-indicator-${entry.id}-${index}`}
                                 className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${getEntryTypeColor(entry.type)}`}
                               />
                             ))}
@@ -184,7 +184,7 @@ export default function Calendar() {
           {selectedDate && (
             <div className="mt-6">
               <h3 className="text-lg font-playfair font-semibold text-foreground mb-4">
-                {format(selectedDate, 'MMMM d, yyyy')}
+                📔 {format(selectedDate, 'MMMM d, yyyy')}
               </h3>
               
               {selectedDateEntries && selectedDateEntries.length > 0 ? (
@@ -244,7 +244,7 @@ export default function Calendar() {
                   <CardContent className="p-8 text-center">
                     <div className="text-muted-foreground">
                       <CalendarIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">No entries for this date</p>
+                      <p className="text-sm">No journal pages for this date</p>
                     </div>
                   </CardContent>
                 </Card>

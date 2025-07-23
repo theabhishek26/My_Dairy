@@ -95,7 +95,7 @@ export function EntryCard({ entry }: EntryCardProps) {
               <AudioPlayer
                 key={audio.id}
                 audioUrl={audio.url}
-                duration={audio.duration}
+                duration={audio.duration || undefined}
                 fileName={audio.originalName}
               />
             ))}
@@ -111,7 +111,7 @@ export function EntryCard({ entry }: EntryCardProps) {
                   src={video.url}
                   controls
                   className="w-full h-32 object-cover"
-                  poster={video.thumbnailUrl}
+                  poster={video.thumbnailUrl || undefined}
                 >
                   Your browser does not support the video tag.
                 </video>

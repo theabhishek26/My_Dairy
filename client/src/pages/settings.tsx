@@ -30,7 +30,7 @@ export default function Settings() {
   const handleExport = () => {
     toast({
       title: "Export Started",
-      description: "Your diary entries are being exported. This may take a moment.",
+      description: "Your journal pages are being exported. This may take a moment.",
     });
   };
 
@@ -59,7 +59,7 @@ export default function Settings() {
             <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-light rounded-full flex items-center justify-center">
               <SettingsIcon className="w-5 h-5 text-white" />
             </div>
-            <h2 className="text-xl font-playfair font-semibold text-foreground">Settings</h2>
+            <h2 className="text-xl font-playfair font-semibold text-foreground">⚙️ Diary Settings</h2>
           </div>
 
           {/* Profile Settings */}
@@ -114,7 +114,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Private Mode</Label>
-                  <p className="text-sm text-muted-foreground">Hide sensitive entries</p>
+                  <p className="text-sm text-muted-foreground">Hide sensitive journal pages</p>
                 </div>
                 <Switch />
               </div>

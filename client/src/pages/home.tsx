@@ -183,28 +183,30 @@ export default function Home() {
     <div className="relative z-10 min-h-screen">
       <Header />
       <main className="pb-24">
-        {/* Date Navigation */}
+        {/* Enhanced Date Navigation */}
         <div className="p-4 pt-6">
-          <Card className="glass-effect border-0 mb-6 bg-gradient-to-r from-purple-50/80 to-pink-50/80 dark:from-purple-900/30 dark:to-pink-900/30 backdrop-blur-lg rounded-2xl">
-            <CardContent className="p-4">
+          <Card className="glass-effect border-0 mb-6 bg-gradient-to-r from-purple-50/80 via-pink-50/60 to-orange-50/80 dark:from-purple-900/30 dark:via-pink-900/20 dark:to-orange-900/30 backdrop-blur-lg rounded-3xl shadow-xl">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => navigateDate('prev')}
-                  className="w-10 h-10 p-0 rounded-full"
+                  className="w-12 h-12 p-0 rounded-full bg-white/20 hover:bg-white/30 dark:bg-gray-800/20 dark:hover:bg-gray-800/30 backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </Button>
                 
-                <div className="flex items-center space-x-3">
-                  <Calendar className="w-5 h-5 text-purple-600" />
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg">
+                    <Calendar className="w-6 h-6 text-white drop-shadow-sm" />
+                  </div>
                   <div className="text-center">
-                    <h2 className="text-lg font-semibold text-purple-700 dark:text-purple-300">
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-purple-700 via-pink-600 to-orange-600 bg-clip-text text-transparent dark:from-purple-300 dark:via-pink-400 dark:to-orange-400">
                       {format(selectedDate, 'MMMM d, yyyy')}
                     </h2>
-                    <p className="text-sm text-purple-600/70 dark:text-purple-400/70">
-                      {isToday(selectedDate) ? 'Today' : format(selectedDate, 'EEEE')}
+                    <p className="text-sm font-medium text-purple-600/80 dark:text-purple-400/80">
+                      {isToday(selectedDate) ? '✨ Today' : format(selectedDate, 'EEEE')}
                     </p>
                   </div>
                   <Input
@@ -218,7 +220,7 @@ export default function Home() {
                         setSelectedDate(localDate);
                       }
                     }}
-                    className="w-32 text-xs bg-white/70 dark:bg-gray-800/70 border-purple-200 dark:border-purple-700"
+                    className="w-36 text-sm bg-white/50 dark:bg-gray-800/50 border-2 border-purple-200/50 dark:border-purple-700/50 rounded-xl backdrop-blur-sm focus:border-purple-400 dark:focus:border-purple-500 focus:bg-white/70 dark:focus:bg-gray-800/70 transition-all duration-300"
                   />
                 </div>
                 
@@ -226,9 +228,9 @@ export default function Home() {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigateDate('next')}
-                  className="w-10 h-10 p-0 rounded-full"
+                  className="w-12 h-12 p-0 rounded-full bg-white/20 hover:bg-white/30 dark:bg-gray-800/20 dark:hover:bg-gray-800/30 backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </Button>
               </div>
             </CardContent>
@@ -239,7 +241,7 @@ export default function Home() {
             <Card className="glass-effect border-0 text-center bg-gradient-to-br from-purple-50/80 to-pink-50/80 dark:from-purple-900/50 dark:to-pink-900/50 backdrop-blur-lg rounded-2xl hover:shadow-lg transition-all duration-300">
               <CardContent className="p-4">
                 <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">{totalEntries}</div>
-                <div className="text-xs text-muted-foreground font-medium">Total Entries</div>
+                <div className="text-xs text-muted-foreground font-medium">Journal Stories</div>
               </CardContent>
             </Card>
             <Card className="glass-effect border-0 text-center bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-900/50 dark:to-indigo-900/50 backdrop-blur-lg rounded-2xl hover:shadow-lg transition-all duration-300">
@@ -260,7 +262,7 @@ export default function Home() {
         {/* Date Entries */}
         <div className="space-y-4">
           <h2 className="text-xl font-playfair font-semibold text-foreground px-4">
-            {isToday(selectedDate) ? 'Today\'s Entries' : `Entries for ${format(selectedDate, 'MMM d')}`}
+            {isToday(selectedDate) ? 'Today\'s Journal' : `Journal from ${format(selectedDate, 'MMM d')}`}
           </h2>
           {dateEntries && dateEntries.length > 0 ? (
             dateEntries.map((entry) => (
@@ -277,8 +279,8 @@ export default function Home() {
               <CardContent className="p-12 text-center">
                 <div className="text-muted-foreground">
                   <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium mb-2">No entries for this date</h3>
-                  <p className="text-sm">Click the + button to create your first entry for this day!</p>
+                  <h3 className="text-lg font-medium mb-2">No memories captured</h3>
+                  <p className="text-sm">Click the + button to start your journal for this day!</p>
                 </div>
               </CardContent>
             </Card>
