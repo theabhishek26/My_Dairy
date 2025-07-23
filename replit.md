@@ -2,11 +2,21 @@
 
 ## Overview
 
-This is a modern, multi-modal diary application built with React and Express. The app allows users to create diary entries using various media types including text, voice recordings, photos, and videos. It features a mobile-first design with a calendar view, gallery, and settings management.
+This is a modern, multi-modal diary application built with React and Express. The app allows users to create diary entries using various media types including text, voice recordings, photos, and videos. It features a mobile-first design with a calendar view, gallery, and settings management. The application enforces temporal restrictions to prevent future entries and implements a yearly diary system.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Recent Changes (July 23, 2025)
+
+✓ Implemented conditional floating action button that only appears when viewing current date
+✓ Added temporal restrictions preventing future date navigation and entry creation
+✓ Implemented yearly diary limitation system with backend validation
+✓ Simplified home page date UI by removing date input field, keeping only calendar icon
+✓ Fixed audio player progress bar jumping issue by implementing proper drag state management
+✓ Enhanced calendar navigation with disabled states for future dates
+✓ Updated entry creation modal with date restrictions (current year only, no future dates)
 
 ## System Architecture
 

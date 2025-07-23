@@ -14,25 +14,32 @@ export function AudioPlayer({ audioUrl, duration, fileName }: AudioPlayerProps) 
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(duration || 0);
   const [volume, setVolume] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
-      const updateTime = () => setCurrentTime(audio.currentTime);
+      const updateTime = () => {
+        // Only update time if user is not dragging the slider
+        if (!isDragging) {
+          setCurrentTime(audio.currentTime);
+        }
+      };
       const updateDuration = () => setTotalDuration(audio.duration);
+      const handleEnded = () => setIsPlaying(false);
       
       audio.addEventListener('timeupdate', updateTime);
       audio.addEventListener('loadedmetadata', updateDuration);
-      audio.addEventListener('ended', () => setIsPlaying(false));
+      audio.addEventListener('ended', handleEnded);
       
       return () => {
         audio.removeEventListener('timeupdate', updateTime);
         audio.removeEventListener('loadedmetadata', updateDuration);
-        audio.removeEventListener('ended', () => setIsPlaying(false));
+        audio.removeEventListener('ended', handleEnded);
       };
     }
-  }, []);
+  }, [isDragging]);
 
   const formatTime = (seconds: number) => {
     if (isNaN(seconds)) return "0:00";
@@ -53,12 +60,25 @@ export function AudioPlayer({ audioUrl, duration, fileName }: AudioPlayerProps) 
     }
   };
 
-  const handleSeek = (value: number[]) => {
-    const audio = audioRef.current;
-    if (audio && isFinite(value[0]) && value[0] >= 0 && value[0] <= totalDuration) {
-      audio.currentTime = value[0];
+  const handleSeekStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleSeekChange = (value: number[]) => {
+    if (isDragging) {
       setCurrentTime(value[0]);
     }
+  };
+
+  const handleSeekEnd = (value: number[]) => {
+    const audio = audioRef.current;
+    const newTime = value[0];
+    
+    if (audio && isFinite(newTime) && newTime >= 0 && newTime <= totalDuration) {
+      audio.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+    setIsDragging(false);
   };
 
   const handleVolumeChange = (value: number[]) => {
@@ -93,7 +113,9 @@ export function AudioPlayer({ audioUrl, duration, fileName }: AudioPlayerProps) 
             value={[isFinite(currentTime) ? currentTime : 0]}
             max={isFinite(totalDuration) && totalDuration > 0 ? totalDuration : 100}
             step={0.1}
-            onValueChange={handleSeek}
+            onValueChange={handleSeekChange}
+            onValueCommit={handleSeekEnd}
+            onPointerDown={handleSeekStart}
             className="w-full"
           />
         </div>
