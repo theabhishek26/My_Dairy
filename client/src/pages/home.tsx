@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EntryWithMedia } from "@shared/schema";
 import { format, isToday } from "date-fns";
-import { Calendar, ChevronLeft, ChevronRight, PenTool, Mic, Camera, Layers, Heart, Bookmark, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, PenTool, Mic, Camera, Layers, Heart, Bookmark, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Enhanced Entry Card Component with expand/collapse functionality
 interface EnhancedEntryCardProps {
@@ -126,6 +127,8 @@ function EnhancedEntryCard({ entry, isExpanded, onToggle }: EnhancedEntryCardPro
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [expandedEntry, setExpandedEntry] = useState<number | null>(null);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [isTextModalOpen, setIsTextModalOpen] = useState(false);
   
   const { data: entries, isLoading } = useQuery<EntryWithMedia[]>({
     queryKey: ['/api/entries'],
@@ -215,9 +218,34 @@ export default function Home() {
                 </Button>
                 
                 <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'date';
+                      input.max = format(new Date(), 'yyyy-MM-dd');
+                      input.min = format(new Date(new Date().getFullYear(), 0, 1), 'yyyy-MM-dd');
+                      input.value = format(selectedDate, 'yyyy-MM-dd');
+                      input.onchange = (e) => {
+                        const target = e.target as HTMLInputElement;
+                        if (target.value) {
+                          const [year, month, day] = target.value.split('-').map(Number);
+                          const localDate = new Date(year, month - 1, day);
+                          const today = new Date();
+                          const currentYear = today.getFullYear();
+                          
+                          if (localDate.getFullYear() === currentYear && localDate <= today) {
+                            setSelectedDate(localDate);
+                          }
+                        }
+                      };
+                      input.click();
+                    }}
+                    className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                  >
                     <Calendar className="w-6 h-6 text-white drop-shadow-sm" />
-                  </div>
+                  </Button>
                   <div className="text-center">
                     <h2 className="text-xl font-bold bg-gradient-to-r from-purple-700 via-pink-600 to-orange-600 bg-clip-text text-transparent dark:from-purple-300 dark:via-pink-400 dark:to-orange-400">
                       {format(selectedDate, 'MMMM d, yyyy')}
@@ -243,16 +271,22 @@ export default function Home() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-3 gap-4 mb-8">
-            <Card className="glass-effect border-0 text-center bg-gradient-to-br from-purple-50/80 to-pink-50/80 dark:from-purple-900/50 dark:to-pink-900/50 backdrop-blur-lg rounded-2xl hover:shadow-lg transition-all duration-300">
-              <CardContent className="p-4">
-                <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">{totalEntries}</div>
-                <div className="text-xs text-muted-foreground font-medium">Journal Stories</div>
-              </CardContent>
-            </Card>
-            <Card className="glass-effect border-0 text-center bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-900/50 dark:to-indigo-900/50 backdrop-blur-lg rounded-2xl hover:shadow-lg transition-all duration-300">
+            <Card 
+              className="glass-effect border-0 text-center bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-900/50 dark:to-indigo-900/50 backdrop-blur-lg rounded-2xl hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105"
+              onClick={() => setIsVoiceModalOpen(true)}
+            >
               <CardContent className="p-4">
                 <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">{voiceEntries}</div>
-                <div className="text-xs text-muted-foreground font-medium">Voice Notes</div>
+                <div className="text-xs text-muted-foreground font-medium">Voices</div>
+              </CardContent>
+            </Card>
+            <Card 
+              className="glass-effect border-0 text-center bg-gradient-to-br from-purple-50/80 to-pink-50/80 dark:from-purple-900/50 dark:to-pink-900/50 backdrop-blur-lg rounded-2xl hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105"
+              onClick={() => setIsTextModalOpen(true)}
+            >
+              <CardContent className="p-4">
+                <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">{entries?.filter(e => e.type === 'text').length || 0}</div>
+                <div className="text-xs text-muted-foreground font-medium">Texts</div>
               </CardContent>
             </Card>
             <Card className="glass-effect border-0 text-center bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-900/50 dark:to-teal-900/50 backdrop-blur-lg rounded-2xl hover:shadow-lg transition-all duration-300">
@@ -295,6 +329,73 @@ export default function Home() {
       
       <FloatingActionButton currentDate={selectedDate} />
       <BottomNavigation />
+      
+      {/* Voice Entries Modal */}
+      <Dialog open={isVoiceModalOpen} onOpenChange={setIsVoiceModalOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-gradient-to-br from-white/95 via-white/90 to-purple-50/80 dark:from-gray-900/95 dark:via-gray-900/90 dark:to-indigo-900/80 backdrop-blur-xl border-white/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <Mic className="w-5 h-5 text-blue-600" />
+              Voice Entries
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-4">
+            {entries?.filter(entry => entry.type === 'voice' || entry.type === 'mixed').map((entry) => (
+              <Card key={entry.id} className="glass-effect border-0 hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-sm">{entry.title}</h3>
+                    <span className="text-xs text-muted-foreground">{format(new Date(entry.createdAt), 'MMM d')}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{entry.content}</p>
+                  {entry.mediaFiles.length > 0 && (
+                    <div className="text-xs text-blue-600 font-medium">
+                      🎙️ {entry.mediaFiles.length} audio file(s)
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+            {entries?.filter(entry => entry.type === 'voice' || entry.type === 'mixed').length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <Mic className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No voice entries yet</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Text Entries Modal */}
+      <Dialog open={isTextModalOpen} onOpenChange={setIsTextModalOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-gradient-to-br from-white/95 via-white/90 to-purple-50/80 dark:from-gray-900/95 dark:via-gray-900/90 dark:to-indigo-900/80 backdrop-blur-xl border-white/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <PenTool className="w-5 h-5 text-purple-600" />
+              Text Entries
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-4">
+            {entries?.filter(entry => entry.type === 'text').map((entry) => (
+              <Card key={entry.id} className="glass-effect border-0 hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-sm">{entry.title}</h3>
+                    <span className="text-xs text-muted-foreground">{format(new Date(entry.createdAt), 'MMM d')}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-3">{entry.content}</p>
+                </CardContent>
+              </Card>
+            ))}
+            {entries?.filter(entry => entry.type === 'text').length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <PenTool className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No text entries yet</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

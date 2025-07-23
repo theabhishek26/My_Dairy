@@ -65,9 +65,8 @@ export function AudioPlayer({ audioUrl, duration, fileName }: AudioPlayerProps) 
   };
 
   const handleSeekChange = (value: number[]) => {
-    if (isDragging) {
-      setCurrentTime(value[0]);
-    }
+    // Update visual position immediately during drag
+    setCurrentTime(value[0]);
   };
 
   const handleSeekEnd = (value: number[]) => {
@@ -76,7 +75,6 @@ export function AudioPlayer({ audioUrl, duration, fileName }: AudioPlayerProps) 
     
     if (audio && isFinite(newTime) && newTime >= 0 && newTime <= totalDuration) {
       audio.currentTime = newTime;
-      setCurrentTime(newTime);
     }
     setIsDragging(false);
   };

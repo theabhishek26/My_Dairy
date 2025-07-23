@@ -119,7 +119,7 @@ export function ModernEntryCreationModal({ isOpen, onClose, initialDate }: Diary
       entryDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
       
       const entryData = {
-        title: title.trim() || "Untitled Entry",
+        title: title.trim() || "My thoughts",
         content: textContent,
         type: activeTab,
         entryDate: entryDate.toISOString(),

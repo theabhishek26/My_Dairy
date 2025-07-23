@@ -211,72 +211,60 @@ export default function Calendar() {
             </CardContent>
           </Card>
 
-          {/* Selected Date Entries */}
-          {selectedDate && (
+          {/* Selected Date Entries - Highlights Only */}
+          {selectedDate && selectedDateEntries && selectedDateEntries.length > 0 && (
             <div className="mt-6">
               <h3 className="text-lg font-playfair font-semibold text-foreground mb-4">
-                📔 {format(selectedDate, 'MMMM d, yyyy')}
+                📔 {format(selectedDate, 'MMMM d, yyyy')} ({selectedDateEntries.length} {selectedDateEntries.length === 1 ? 'entry' : 'entries'})
               </h3>
               
-              {selectedDateEntries && selectedDateEntries.length > 0 ? (
-                <div className="space-y-3">
-                  {selectedDateEntries.map((entry) => (
-                    <Card key={entry.id} className="glass-effect border-0 entry-card">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <div className={`w-6 h-6 bg-gradient-to-r ${getEntryTypeColor(entry.type)} rounded-full flex items-center justify-center`}>
-                              {getEntryTypeIcon(entry.type)}
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {entry.type}
-                            </Badge>
-                          </div>
-                          <span className="text-xs text-muted-foreground font-mono">
-                            {format(new Date(entry.createdAt), 'HH:mm')}
-                          </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {selectedDateEntries.slice(0, 4).map((entry) => (
+                  <Card key={entry.id} className="glass-effect border-0 hover:shadow-lg transition-all duration-300">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className={`w-6 h-6 bg-gradient-to-r ${getEntryTypeColor(entry.type)} rounded-full flex items-center justify-center`}>
+                          {getEntryTypeIcon(entry.type)}
                         </div>
-                        
-                        {entry.title && (
-                          <h4 className="font-medium mb-2">{entry.title}</h4>
-                        )}
-                        
-                        {entry.content && (
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            {entry.content}
-                          </p>
-                        )}
-                        
-                        {entry.mediaFiles.length > 0 && (
-                          <div className="mt-3 flex space-x-2">
-                            {entry.mediaFiles.slice(0, 3).map((media) => (
-                              <div key={media.id} className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                        <h4 className="font-medium text-sm truncate flex-1">{entry.title}</h4>
+                        <span className="text-xs text-muted-foreground">{format(new Date(entry.createdAt), 'h:mm a')}</span>
+                      </div>
+                      
+                      {entry.content && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                          {entry.content}
+                        </p>
+                      )}
+                      
+                      {entry.mediaFiles.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          <div className="flex space-x-1">
+                            {entry.mediaFiles.slice(0, 2).map((media) => (
+                              <div key={media.id} className="w-4 h-4 bg-muted rounded flex items-center justify-center">
                                 {media.mimeType.startsWith('image/') ? (
-                                  <img 
-                                    src={media.url} 
-                                    alt={media.originalName}
-                                    className="w-full h-full object-cover rounded-lg"
-                                  />
+                                  <Camera className="w-2 h-2" />
                                 ) : (
-                                  <div className={`w-6 h-6 bg-gradient-to-r ${getEntryTypeColor(entry.type)} rounded-full flex items-center justify-center`}>
-                                    {getEntryTypeIcon(entry.type)}
-                                  </div>
+                                  <Mic className="w-2 h-2" />
                                 )}
                               </div>
                             ))}
                           </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <Card className="glass-effect border-0">
-                  <CardContent className="p-8 text-center">
-                    <div className="text-muted-foreground">
-                      <CalendarIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">No journal pages for this date</p>
-                    </div>
+                          <span className="text-xs text-muted-foreground ml-1">
+                            {entry.mediaFiles.length} file{entry.mediaFiles.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              {selectedDateEntries.length > 4 && (
+                <Card className="glass-effect border-0 mt-3">
+                  <CardContent className="p-3 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      +{selectedDateEntries.length - 4} more entries for this day
+                    </p>
                   </CardContent>
                 </Card>
               )}
